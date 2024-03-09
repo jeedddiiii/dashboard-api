@@ -2,9 +2,12 @@ package main
 
 import (
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gin-contrib/cors"
+
+	"fmt"
 
 	"github.com/gin-gonic/gin"
 )
@@ -30,7 +33,30 @@ func main() {
 	connectDb()
 	// Define a route
 	router.GET("/transaction", func(c *gin.Context) {
-		rows, err := db.Query("SELECT * FROM transactions")
+
+		page, _ := strconv.Atoi(c.Query("page"))
+		limit, _ := strconv.Atoi(c.Query("limit"))
+
+		// Set default values if not provided
+		if page <= 0 {
+			page = 1
+		}
+		if limit <= 0 {
+			limit = 10 // set your default limit
+		}
+
+		// Calculate offset based on page and limit
+		offset := (page - 1) * limit
+		fmt.Printf("Page: %d, Limit: %d, Offset: %d\n", page, limit, offset)
+
+		var totalCount int
+		err := db.QueryRow("SELECT COUNT(*) FROM transactions").Scan(&totalCount)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		rows, err := db.Query("SELECT * FROM transactions LIMIT $1 OFFSET $2", limit, offset)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
@@ -50,6 +76,7 @@ func main() {
 
 		c.JSON(http.StatusOK, gin.H{
 			"transactions": transactions,
+			"totalCount":   totalCount,
 		})
 	})
 
