@@ -16,6 +16,7 @@ func main() {
 
 	connectDb()
 	router.GET("/transaction", GetTransaction)
+	router.GET("summary", GetSummary)
 
 	router.Run(":8080")
 }
