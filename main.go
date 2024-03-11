@@ -3,6 +3,8 @@ package main
 import (
 	"github.com/gin-contrib/cors"
 
+	"log"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -17,6 +19,10 @@ func main() {
 	connectDb()
 	router.GET("/transaction", GetTransaction)
 	router.GET("summary", GetSummary)
+
+	BotInit()
+	SentMessage()
+	log.Println("Message sent successfully!")
 
 	router.Run(":8080")
 }
