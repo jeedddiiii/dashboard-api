@@ -19,6 +19,7 @@ func main() {
 	connectDb()
 	router.GET("/transaction", GetTransaction)
 	router.GET("summary", GetSummary)
+	router.POST("/new-user", CreateUser)
 
 	BotInit()
 	SentMessage()
