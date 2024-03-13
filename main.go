@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/gin-contrib/cors"
 
-	"log"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -21,10 +21,12 @@ func main() {
 	router.GET("summary", GetSummary)
 	router.GET("/", GetUsers)
 	router.POST("/new-user", CreateUser)
+	router.POST("/send-message", func(c *gin.Context) {
+		SentMessage()
+		c.Status(http.StatusOK)
+	})
 
 	BotInit()
-	SentMessage()
-	log.Println("Message sent successfully!")
 
 	router.Run(":8080")
 }
