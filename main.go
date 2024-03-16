@@ -26,6 +26,7 @@ func main() {
 		c.Status(http.StatusOK)
 	})
 	router.DELETE("/delete-user/:id", DeleteUser)
+	router.POST("login", Login)
 	BotInit()
 
 	router.Run(":8080")
