@@ -3,6 +3,9 @@ package main
 import (
 	"database/sql"
 	"net/http"
+	"time"
+
+	"github.com/golang-jwt/jwt/v5"
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
@@ -35,7 +38,18 @@ func Login(c *gin.Context) {
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"status": "unauthorized"})
 	} else {
-		c.JSON(http.StatusOK, gin.H{"status": "you are logged in"})
+		token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+			"username": json.Username,
+			"exp":      time.Now().Add(time.Hour * 72).Unix(),
+		})
+
+		tokenString, err := token.SignedString([]byte("secret"))
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{"token": tokenString})
 	}
 
 }
