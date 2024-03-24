@@ -43,7 +43,7 @@ func GetTransaction(c *gin.Context) {
 		return
 	}
 
-	rows, err := db.Query("SELECT * FROM transactions LIMIT $1 OFFSET $2", limit, offset)
+	rows, err := db.Query("SELECT * FROM transactions ORDER BY date_time DESC LIMIT $1 OFFSET $2", limit, offset)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
