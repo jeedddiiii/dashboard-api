@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"time"
 
+	"database/sql"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -23,6 +25,7 @@ type Transaction struct {
 func GetTransaction(c *gin.Context) {
 	page, _ := strconv.Atoi(c.Query("page"))
 	limit, _ := strconv.Atoi(c.Query("limit"))
+	name := c.Query("name") // New: Get the name parameter from the query
 
 	// Set default values if not provided
 	if page <= 0 {
@@ -37,13 +40,25 @@ func GetTransaction(c *gin.Context) {
 	fmt.Printf("Page: %d, Limit: %d, Offset: %d\n", page, limit, offset)
 
 	var totalCount int
-	err := db.QueryRow("SELECT COUNT(*) FROM transactions").Scan(&totalCount)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
+	var rows *sql.Rows
+	var err error
+
+	if name != "" { // New: If name is provided, filter by name
+		err = db.QueryRow("SELECT COUNT(*) FROM transactions WHERE name = $1", name).Scan(&totalCount)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		rows, err = db.Query("SELECT * FROM transactions WHERE name = $1 ORDER BY date_time DESC LIMIT $2 OFFSET $3", name, limit, offset)
+	} else { // Otherwise, fetch all transactions
+		err = db.QueryRow("SELECT COUNT(*) FROM transactions").Scan(&totalCount)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		rows, err = db.Query("SELECT * FROM transactions ORDER BY date_time DESC LIMIT $1 OFFSET $2", limit, offset)
 	}
 
-	rows, err := db.Query("SELECT * FROM transactions ORDER BY date_time DESC LIMIT $1 OFFSET $2", limit, offset)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
