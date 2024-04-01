@@ -27,6 +27,7 @@ func main() {
 	})
 	router.DELETE("/delete-user/:id", DeleteUser)
 	router.POST("login", Login)
+	router.POST("/insert-transaction", InsertTransaction)
 	BotInit()
 
 	router.Run(":8080")

@@ -5,7 +5,6 @@ import (
 	"strconv"
 
 	"fmt"
-	"time"
 
 	"database/sql"
 
@@ -13,13 +12,13 @@ import (
 )
 
 type Transaction struct {
-	TransactionID  int       `db:"transaction_id"`
-	Name           string    `db:"name"`
-	DateTime       time.Time `db:"date_time"`
-	SourceID       int       `db:"source_id"`
-	Emotion        string    `db:"emotion"`
-	FaceImg        string    `db:"face_img"`
-	EnvironmentImg string    `db:"environment_img"`
+	TransactionID  int    `db:"transaction_id"`
+	Name           string `json:"name"`
+	DateTime       string `json:"date_time"`
+	Emotion        string `json:"emotion"`
+	SourceID       int    `json:"source_id"`
+	FaceImg        string `json:"face_img"`
+	EnvironmentImg string `json:"environment_img"`
 }
 
 func GetTransaction(c *gin.Context) {
